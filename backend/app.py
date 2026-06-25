@@ -12,7 +12,7 @@ def get_db_connection():
         host=os.environ.get('DB_HOST', 'db'),
         user=os.environ.get('DB_USER', 'root'),
         password=os.environ.get('DB_PASSWORD', 'secret_password'),
-        database=os.environ.get('DB_NAME', 'todo_db'),
+        database=os.environ.get('DB_NAME', 'todos_db'),
         port=3306,
         cursorclass=pymysql.cursors.DictCursor
     )

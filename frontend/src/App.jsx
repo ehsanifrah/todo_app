@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 // Points to our Docker-mapped Flask container API route
-const API_URL = "http://localhost:5000/api/todos";
+const API_URL = "/api/todos";
 
 function App() {
   const [todos, setTodos] = useState([]);
