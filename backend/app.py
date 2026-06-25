@@ -4,8 +4,9 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-# Allows your React frontend (on port 5173) to reach this API securely
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+# Broaden CORS to cleanly support tracking across the Application Load Balancer
+CORS(app, support_credentials=True)
 
 def get_db_connection():
     return pymysql.connect(
@@ -17,7 +18,8 @@ def get_db_connection():
         cursorclass=pymysql.cursors.DictCursor
     )
 
-@app.route('/api/todos', methods=['GET'])
+# strict_slashes=False ensures /api/todos and /api/todos/ both route flawlessly
+@app.route('/api/todos', methods=['GET'], strict_slashes=False)
 def get_todos():
     try:
         conn = get_db_connection()
@@ -30,18 +32,18 @@ def get_todos():
         print(f"Error fetching todos: {e}")
         return jsonify({"error": "Database connection error"}), 500
 
-@app.route('/api/todos', methods=['POST'])
+@app.route('/api/todos', methods=['POST'], strict_slashes=False)
 def add_todo():
     try:
         data = request.get_json() or {}
-        task = data.get('task')
+        task = data.get('task', '').strip()
         
-        if not task or not task.strip():
+        if not task:
             return jsonify({"error": "Task text cannot be empty"}), 400
 
         conn = get_db_connection()
         with conn.cursor() as cur:
-            cur.execute('INSERT INTO todos (task) VALUES (%s);', (task.strip(),))
+            cur.execute('INSERT INTO todos (task) VALUES (%s);', (task,))
             conn.commit()
             last_id = cur.lastrowid
             
